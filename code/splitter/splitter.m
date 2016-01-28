@@ -16,13 +16,19 @@ function [lhs, rhsRegistered, tform] = splitter(im)
   optimizer.MaximumIterations = 50;
   optimizer.MinimumStepLength = 5e-3;
   
-  [tform_string,rhsRegistered] = evalc('imregister(rhs, lhs, ''rigid'', optimizer, metric, ''DisplayOptimization'', true)');
+%   [tform_string,rhsRegistered] = evalc('imregister(rhs, lhs, ''rigid'', optimizer, metric, ''DisplayOptimization'', true)');
+  geotform = imregtform(rhs, lhs, 'rigid', optimizer, metric, 'DisplayOptimization', true);
   
+  tform = maketform('affine', geotform.T);
   % this is a horrendous hack!!!!
-  strtok(tform_string,'imtransform.');
-  [~,ss] = regexp(tform_string,'imtransform.','match','split');
-  eval(strcat([ss{2},'; tform = T']));
-  
+%   strtok(tform_string,'imtransform.');
+%   [~,ss] = regexp(tform_string,'imtransform.','match','split');
+%   eval(strcat([ss{2},'; tform = T']));
+%   imshow(lhs);
+%   imshow(rhs);
+%   rhsRegistered = imwarp(rhs, geotform);
+  rhsRegistered = imregister(rhs, lhs, 'rigid', optimizer, metric, 'DisplayOptimization', true);
+%    imshow(rhsRegistered);
   % find region that is zero due to registration fill in
   rhsMask = 1-double(rhsRegistered == 0);
 
